@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "204402696885",
+    "project_id": "project-slink-mobile-app",
+    "storage_bucket": "project-slink-mobile-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204402696885:android:8405d4ce914c86624794fc",
+        "android_client_info": {
+          "package_name": "com.example.slink_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyHWi9LpqjMARaFOJE-hwFGRzbBw7FWDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
