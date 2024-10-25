@@ -7,11 +7,13 @@ class OrderHistoryPage extends StatelessWidget {
     {'id': 'Order 3', 'date': '8 Oct 2024', 'total': 120.00},
   ];
 
+  OrderHistoryPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order History'),
+        title: const Text('Order History'),
         backgroundColor: Colors.blue[800],
       ),
       body: Padding(
@@ -21,7 +23,7 @@ class OrderHistoryPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final order = mockOrders[index];
             return Card(
-              margin: EdgeInsets.symmetric(vertical: 10.0),
+              margin: const EdgeInsets.symmetric(vertical: 10.0),
               elevation: 3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -32,19 +34,19 @@ class OrderHistoryPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.receipt_long, color: Colors.blue[800]),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             order['id'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Placed on ${order['date']}',
                             style: TextStyle(
@@ -59,22 +61,22 @@ class OrderHistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '\R${order['total'].toStringAsFixed(2)}',
+                          'R${order['total'].toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue[800],
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         TextButton(
                           onPressed: () {
                             // Handle view order details or reorder
                           },
-                          child: Text('View Details'),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue[800],
                           ),
+                          child: Text('View Details'),
                         ),
                       ],
                     ),

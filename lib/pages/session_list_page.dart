@@ -3,12 +3,14 @@ import '../data/mock_sessions.dart';
 import 'session_detail_page.dart';
 
 class SessionListPage extends StatelessWidget {
+  const SessionListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[800],
-        title: Text('Book a Session'),
+        title: const Text('Book a Session'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -17,16 +19,16 @@ class SessionListPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final session = mockSessions[index];
             return Card(
-              margin: EdgeInsets.symmetric(vertical: 8.0),
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 3,
               child: ListTile(
-                contentPadding: EdgeInsets.all(16.0),
+                contentPadding: const EdgeInsets.all(16.0),
                 title: Text(
                   session.title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
@@ -34,14 +36,14 @@ class SessionListPage extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       session.location,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      '\R${session.price.toStringAsFixed(2)}',
+                      'R${session.price.toStringAsFixed(2)}',
                       style: TextStyle(
                         color: Colors.green[700],
                         fontWeight: FontWeight.bold,
