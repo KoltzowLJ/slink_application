@@ -5,7 +5,8 @@ class ProductDetailPage extends StatefulWidget {
   final Product product;
   final Function(Product) onAddToCart;
 
-  ProductDetailPage({required this.product, required this.onAddToCart});
+  const ProductDetailPage(
+      {super.key, required this.product, required this.onAddToCart});
 
   @override
   _ProductDetailPageState createState() => _ProductDetailPageState();
@@ -28,11 +29,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProductImage(),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             _buildProductDetails(),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             _buildAddToCartButton(),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Expanded(child: _buildReviewSection()),
             _buildReviewForm(),
           ],
@@ -65,22 +66,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       children: [
         Text(
           widget.product.name,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 28.0,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         Text(
-          '\R${widget.product.price}',
+          'R${widget.product.price}',
           style: TextStyle(
             fontSize: 22.0,
             color: Colors.green[700],
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 16.0),
+        const SizedBox(height: 16.0),
         Text(
           widget.product.description,
           style: TextStyle(fontSize: 16.0, color: Colors.grey[700]),
@@ -94,24 +95,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       onPressed: () {
         widget.onAddToCart(widget.product);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Added to Cart!')),
+          const SnackBar(content: Text('Added to Cart!')),
         );
       },
-      child: Text('Add to Cart'),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
+      child: Text('Add to Cart'),
     );
   }
 
   Widget _buildReviewSection() {
     return widget.product.reviews.isEmpty
-        ? Center(child: Text('No reviews yet. Be the first to review!'))
+        ? const Center(child: Text('No reviews yet. Be the first to review!'))
         : ListView.builder(
             itemCount: widget.product.reviews.length,
             itemBuilder: (context, index) {
@@ -120,7 +121,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 leading: Icon(Icons.person, color: Colors.blue[800]),
                 title: Text(
                   review.user,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   '${review.comment}\nRating: ${review.rating}',
@@ -137,13 +138,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       children: [
         TextField(
           controller: _reviewController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Leave a review',
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(height: 16),
-        Text(
+        const SizedBox(height: 16),
+        const Text(
           'Rate this product',
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
@@ -159,7 +160,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           },
           label: _rating.toString(),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () {
             if (_reviewController.text.isNotEmpty && _rating > 0) {
@@ -176,19 +177,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               });
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Please provide a review and rating!')),
+                const SnackBar(
+                    content: Text('Please provide a review and rating!')),
               );
             }
           },
-          child: Text('Submit Review'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue[800],
             foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
+          child: Text('Submit Review'),
         ),
       ],
     );

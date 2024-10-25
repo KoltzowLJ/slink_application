@@ -7,7 +7,8 @@ class WishlistPage extends StatelessWidget {
   final Function(Product) onAddToCart;
   final Function(Product) onWishlistToggle;
 
-  WishlistPage({
+  const WishlistPage({
+    super.key,
     required this.wishlist,
     required this.onAddToCart,
     required this.onWishlistToggle,
@@ -18,7 +19,7 @@ class WishlistPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[800]!,
-        title: Text('My Wishlist'),
+        title: const Text('My Wishlist'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,7 +51,7 @@ class WishlistPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.favorite_border, size: 80, color: Colors.grey[400]),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Your wishlist is empty',
             style: TextStyle(
@@ -59,20 +60,20 @@ class WishlistPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
               Navigator.pushNamed(context, '/products');
             },
-            child: Text('Shop Now'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[800]!,
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            child: Text('Shop Now'),
           ),
         ],
       ),

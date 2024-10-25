@@ -9,7 +9,8 @@ class ProductListPage extends StatefulWidget {
   final Function(Product) onWishlistToggle;
   final List<Product> wishlist;
 
-  ProductListPage({
+  const ProductListPage({
+    super.key,
     required this.products,
     required this.onAddToCart,
     required this.onWishlistToggle,
@@ -37,16 +38,16 @@ class _ProductListPageState extends State<ProductListPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[800],
-        title: Text('SLINK Products'),
+        title: const Text('SLINK Products'),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite, color: Colors.white),
+            icon: const Icon(Icons.favorite, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/wishlist');
             },
           ),
           IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
+            icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/cart');
             },
@@ -92,7 +93,7 @@ class _ProductListPageState extends State<ProductListPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           labelText: 'Search products...',
           border: OutlineInputBorder(),
           prefixIcon: Icon(Icons.search),

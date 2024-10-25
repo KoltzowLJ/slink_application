@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
   final List<Product> wishlist;
   final Function(Product) addToCart;
 
-  HomePage({required this.wishlist, required this.addToCart});
+  const HomePage({super.key, required this.wishlist, required this.addToCart});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[800],
-        title: Text(
+        title: const Text(
           'SLINK Home',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite, color: Colors.white),
+            icon: const Icon(Icons.favorite, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
+            icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.person, color: Colors.white),
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildBanner(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildActionButton(
                   icon: Icons.schedule,
                   label: 'Book a Session',
@@ -165,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildActionButton(
                   icon: Icons.history,
                   label: 'Order History',
@@ -177,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildActionButton(
                   icon: Icons.person,
                   label: 'User Profile',
@@ -205,9 +205,10 @@ class _HomePageState extends State<HomePage> {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 24, color: Colors.white),
-      label: Text(label, style: TextStyle(fontSize: 18, color: Colors.white)),
+      label: Text(label,
+          style: const TextStyle(fontSize: 18, color: Colors.white)),
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(double.infinity, 50),
+        minimumSize: const Size(double.infinity, 50),
         backgroundColor: Colors.blue[800],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -222,16 +223,16 @@ class _HomePageState extends State<HomePage> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.blue[100],
-        image: DecorationImage(
+        image: const DecorationImage(
           image: NetworkImage('https://example.com/banner.png'),
           fit: BoxFit.cover,
         ),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20),
         ),
       ),
-      child: Center(
+      child: const Center(
         child: Text(
           'Welcome to SLINK!',
           style: TextStyle(
