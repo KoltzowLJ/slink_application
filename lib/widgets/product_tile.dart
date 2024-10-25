@@ -6,7 +6,8 @@ class ProductTile extends StatelessWidget {
   final Function(Product) onAddToCart;
   final Function(Product) onWishlistToggle;
 
-  ProductTile({
+  const ProductTile({
+    super.key,
     required this.product,
     required this.onAddToCart,
     required this.onWishlistToggle,
@@ -19,7 +20,7 @@ class ProductTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 4,
-      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -34,10 +35,10 @@ class ProductTile extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               product.name,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -46,9 +47,9 @@ class ProductTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              '\R${product.price.toStringAsFixed(2)}',
+              'R${product.price.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.green[700],
@@ -56,7 +57,7 @@ class ProductTile extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
