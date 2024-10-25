@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product.dart';
+import '../service/checkout_service.dart';
 
 class CartPage extends StatefulWidget {
   final List<Product> cartItems;
   final Function(Product) onRemoveFromCart;
 
-  const CartPage(
-      {super.key, required this.cartItems, required this.onRemoveFromCart});
+  const CartPage({
+    super.key,
+    required this.cartItems,
+    required this.onRemoveFromCart,
+  });
 
   @override
   _CartPageState createState() => _CartPageState();
@@ -132,8 +137,33 @@ class _CartPageState extends State<CartPage> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {
-              // Handle checkout functionality here
+            onPressed: () async {
+              try {
+                final checkoutService = CheckoutService();
+                final userId = FirebaseAuth.instance.currentUser?.uid;
+
+                if (userId != null) {
+                  await checkoutService.createOrder(
+                    userId,
+                    widget.cartItems,
+                    totalPrice,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Order placed successfully!')),
+                  );
+
+                  Navigator.pop(context); // Return to previous screen
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please sign in to checkout')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: $e')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
@@ -143,7 +173,7 @@ class _CartPageState extends State<CartPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text('Proceed to Checkout'),
+            child: const Text('Proceed to Checkout'),
           ),
         ],
       ),
