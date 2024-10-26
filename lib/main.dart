@@ -1,6 +1,8 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pages/splash_screen.dart';
 import 'pages/home_page.dart';
@@ -13,8 +15,12 @@ import 'pages/sign_in_page.dart';
 import 'pages/sign_up_page.dart';
 import 'pages/session_list_page.dart';
 import 'pages/order_history_page.dart';
+import 'pages/admin/admin_home_page.dart';
+import 'pages/admin/manage_products_page.dart';
+import 'pages/admin/manage_bookings_page.dart';
+import 'pages/admin/manage_orders_page.dart';
+import 'pages/admin/manage_users_page.dart';
 import 'models/product.dart';
-import 'service/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,31 +40,8 @@ class SlinkApp extends StatefulWidget {
 }
 
 class _SlinkAppState extends State<SlinkApp> {
-  final AuthService _authService = AuthService();
   List<Product> wishlist = [];
   List<Product> cart = [];
-
-  // Products list - you might want to move this to a separate service
-  final List<Product> products = [
-    Product(
-      id: '1',
-      name: 'Yoga Mat',
-      description: 'Comfortable and durable yoga mat.',
-      category: 'Fitness',
-      price: 29.99,
-      imageUrl: 'https://example.com/yoga_mat.png',
-      isWishlisted: false,
-    ),
-    Product(
-      id: '2',
-      name: 'Dumbbells',
-      description: 'Adjustable dumbbells for weight training.',
-      category: 'Fitness',
-      price: 49.99,
-      imageUrl: 'https://example.com/dumbbells.png',
-      isWishlisted: false,
-    ),
-  ];
 
   void addToCart(Product product) {
     setState(() {
@@ -128,29 +111,8 @@ class _SlinkAppState extends State<SlinkApp> {
           ),
         ),
       ),
-      home: StreamBuilder<User?>(
-        stream: _authService.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (snapshot.hasData) {
-            // User is signed in
-            return HomePage(
-              wishlist: wishlist,
-              addToCart: addToCart,
-            );
-          }
-
-          // User is not signed in
-          return const LoginPage();
-        },
-      ),
+      home: const SplashScreen(),
       routes: {
-        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
         '/signin': (context) => const SignInPage(),
         '/signup': (context) => const SignUpPage(),
@@ -162,7 +124,7 @@ class _SlinkAppState extends State<SlinkApp> {
               cartItems: cart,
               onRemoveFromCart: removeFromCart,
             ),
-        '/profile': (context) => UserProfilePage(),
+        '/profile': (context) => const UserProfilePage(),
         '/wishlist': (context) => WishlistPage(
               wishlist: wishlist,
               onAddToCart: addToCart,
@@ -189,11 +151,16 @@ class _SlinkAppState extends State<SlinkApp> {
               },
               wishlist: wishlist,
             ),
-        '/sessions': (context) => SessionListPage(),
+        '/sessions': (context) => const SessionListPage(),
         '/orders': (context) => OrderHistoryPage(),
+        // Admin routes
+        '/admin': (context) => const AdminHomePage(),
+        '/admin/products': (context) => const ManageProductsPage(),
+        '/admin/bookings': (context) => const ManageBookingsPage(),
+        '/admin/orders': (context) => const ManageOrdersPage(),
+        '/admin/users': (context) => const ManageUsersPage(),
       },
       onGenerateRoute: (settings) {
-        // Handle any routes that aren't registered
         return MaterialPageRoute(
           builder: (context) => const Scaffold(
             body: Center(
