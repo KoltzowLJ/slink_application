@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 import '../service/auth_service.dart';
 import '../service/admin_service.dart';
-import 'admin_panel.dart';
+import 'admin/admin_home_page.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -368,11 +368,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AdminPanel()),
+                  MaterialPageRoute(
+                      builder: (context) => const AdminHomePage()),
                 );
               },
               icon: const Icon(Icons.admin_panel_settings),
-              label: const Text('Admin Panel'),
+              label: const Text('Admin Dashboard'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple[700],
                 foregroundColor: Colors.white,
