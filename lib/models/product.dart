@@ -70,6 +70,8 @@ class Product {
       'reviews': reviews.map((review) => review.toMap()).toList(),
     };
   }
+
+  String get formattedPrice => 'R${price.toStringAsFixed(2)}';
 }
 
 class Review {
