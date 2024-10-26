@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'pages/splash_screen.dart';
 import 'pages/home_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/user_profile_page.dart';
@@ -149,6 +150,7 @@ class _SlinkAppState extends State<SlinkApp> {
         },
       ),
       routes: {
+        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
         '/signin': (context) => const SignInPage(),
         '/signup': (context) => const SignUpPage(),
