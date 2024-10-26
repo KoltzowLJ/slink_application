@@ -48,6 +48,8 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signIn() async {
+    if (!mounted) return;
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -62,11 +64,20 @@ class _SignInPageState extends State<SignInPage> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      // No need to navigate, StreamBuilder in main.dart will handle it
+
+      if (mounted) {
+        // Clear the navigation stack and go to home
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/home',
+          (Route<dynamic> route) => false,
+        );
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
     } finally {
       if (mounted) {
         setState(() {
