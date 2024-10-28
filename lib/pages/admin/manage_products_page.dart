@@ -1,9 +1,10 @@
 // lib/pages/admin/manage_products_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/product.dart';
-import '../../service/product_service.dart';
 import '../../service/admin_service.dart';
+import '../../widgets/product_form_dialog.dart';
 
 class ManageProductsPage extends StatefulWidget {
   const ManageProductsPage({super.key});
@@ -13,286 +14,70 @@ class ManageProductsPage extends StatefulWidget {
 }
 
 class _ManageProductsPageState extends State<ManageProductsPage> {
-  final ProductService _productService = ProductService();
   final AdminService _adminService = AdminService();
+  String _searchQuery = '';
   String _selectedCategory = 'All';
+  bool _isGridView = false;
 
-  void _showAddEditProductDialog([Product? product]) {
-    final isEditing = product != null;
-    final nameController = TextEditingController(text: product?.name);
-    final descriptionController =
-        TextEditingController(text: product?.description);
-    final priceController =
-        TextEditingController(text: product?.price.toString() ?? '');
-    final imageUrlController = TextEditingController(text: product?.imageUrl);
-    final stockQuantityController =
-        TextEditingController(text: product?.stockQuantity.toString() ?? '0');
+  Future<void> _showAddEditProductDialog([Product? product]) async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => ProductFormDialog(product: product),
+    );
 
-    // Default values for new products
-    Map<String, dynamic> specifications = product?.specifications ??
-        {
-          'material': '',
-          'dimensions': '',
-          'thickness': '',
-          'weight': '',
-          'colors': <String>[]
-        };
+    if (result != null && mounted) {
+      try {
+        if (product == null) {
+          // Adding new product
+          await _adminService.addProduct(result);
+          _showSnackBar('Product added successfully');
+        } else {
+          // Updating existing product
+          await _adminService.updateProduct(product.id, result);
+          _showSnackBar('Product updated successfully');
+        }
+      } catch (e) {
+        _showSnackBar('Error: $e', isError: true);
+      }
+    }
+  }
 
-    List<String> features = product?.features ?? [];
-    String selectedCategory = product?.category ?? 'Fitness Equipment';
-
-    showDialog(
+  Future<void> _deleteProduct(Product product) async {
+    final confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Edit Product' : 'Add New Product'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Basic Information
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: priceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Price',
-                        border: OutlineInputBorder(),
-                        prefixText: 'R',
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextField(
-                      controller: stockQuantityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Stock Quantity',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: imageUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Image URL',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  'Fitness Equipment',
-                  'Supplements',
-                  'Accessories',
-                  'Wellness Products'
-                ].map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  selectedCategory = value ?? selectedCategory;
-                },
-              ),
-
-              // Specifications Section
-              const SizedBox(height: 24),
-              const Text(
-                'Specifications',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Material',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  specifications['material'] = value;
-                },
-                controller: TextEditingController(
-                    text: specifications['material']?.toString()),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Dimensions',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  specifications['dimensions'] = value;
-                },
-                controller: TextEditingController(
-                    text: specifications['dimensions']?.toString()),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Thickness',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  specifications['thickness'] = value;
-                },
-                controller: TextEditingController(
-                    text: specifications['thickness']?.toString()),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Weight',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  specifications['weight'] = value;
-                },
-                controller: TextEditingController(
-                    text: specifications['weight']?.toString()),
-              ),
-
-              // Features Section
-              const SizedBox(height: 24),
-              const Text(
-                'Features',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Features list with add/remove capability
-              ...features.asMap().entries.map((entry) {
-                return Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Feature ${entry.key + 1}',
-                          border: const OutlineInputBorder(),
-                        ),
-                        controller: TextEditingController(text: entry.value),
-                        onChanged: (value) {
-                          features[entry.key] = value;
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle),
-                      onPressed: () {
-                        setState(() {
-                          features.removeAt(entry.key);
-                        });
-                        Navigator.pop(context);
-                        _showAddEditProductDialog(product);
-                      },
-                    ),
-                  ],
-                );
-              }),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    features.add('');
-                  });
-                  Navigator.pop(context);
-                  _showAddEditProductDialog(product);
-                },
-                child: const Text('Add Feature'),
-              ),
-            ],
-          ),
-        ),
+        title: const Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete ${product.name}?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                final name = nameController.text.trim();
-                final description = descriptionController.text.trim();
-                final price = double.tryParse(priceController.text) ?? 0.0;
-                final imageUrl = imageUrlController.text.trim();
-                final stockQuantity =
-                    int.tryParse(stockQuantityController.text) ?? 0;
-
-                if (name.isEmpty || description.isEmpty || price <= 0) {
-                  throw 'Please fill in all required fields correctly';
-                }
-
-                final newProduct = Product(
-                  id: product?.id ?? '',
-                  name: name,
-                  description: description,
-                  price: price,
-                  imageUrl: imageUrl,
-                  category: selectedCategory,
-                  stockQuantity: stockQuantity,
-                  specifications: specifications,
-                  features: features.where((f) => f.isNotEmpty).toList(),
-                  isWishlisted: product?.isWishlisted ?? false,
-                  reviews: product?.reviews ?? [],
-                  createdAt: product?.createdAt ?? DateTime.now(),
-                  lastUpdated: DateTime.now(),
-                );
-
-                if (isEditing) {
-                  await _adminService.updateProduct(newProduct);
-                } else {
-                  await _adminService.addProduct(newProduct);
-                }
-
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          '${isEditing ? 'Updated' : 'Added'} product successfully'),
-                    ),
-                  );
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
-            },
-            child: Text(isEditing ? 'Update' : 'Add'),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      try {
+        await _adminService.deleteProduct(product.id);
+        _showSnackBar('Product deleted successfully');
+      } catch (e) {
+        _showSnackBar('Error: $e', isError: true);
+      }
+    }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -302,12 +87,32 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Products'),
-        backgroundColor: Colors.blue[800],
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
+          // Search icon
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: ProductSearchDelegate(_adminService),
+              );
+            },
+          ),
+          // View toggle
+          IconButton(
+            icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
+            onPressed: () {
               setState(() {
-                _selectedCategory = value;
+                _isGridView = !_isGridView;
+              });
+            },
+          ),
+          // Category filter
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            onSelected: (category) {
+              setState(() {
+                _selectedCategory = category;
               });
             },
             itemBuilder: (context) => [
@@ -327,41 +132,36 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
                 value: 'Accessories',
                 child: Text('Accessories'),
               ),
-              const PopupMenuItem(
-                value: 'Wellness Products',
-                child: Text('Wellness Products'),
-              ),
             ],
-            icon: const Icon(Icons.filter_list),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditProductDialog(),
-        backgroundColor: Colors.blue[800],
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<List<Product>>(
-        stream: _productService.getProducts(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _adminService.getProducts(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
-          final products = snapshot.data ?? [];
-          final filteredProducts = _selectedCategory == 'All'
-              ? products
-              : products.where((p) => p.category == _selectedCategory).toList();
+          final products = snapshot.data!.docs.map((doc) {
+            return Product.fromFirestore(doc);
+          }).where((product) {
+            final matchesCategory = _selectedCategory == 'All' ||
+                product.category == _selectedCategory;
+            final matchesSearch =
+                product.name.toLowerCase().contains(_searchQuery.toLowerCase());
+            return matchesCategory && matchesSearch;
+          }).toList();
 
-          if (filteredProducts.isEmpty) {
+          if (products.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -370,103 +170,241 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
                       size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No products found${_selectedCategory == 'All' ? '' : ' in $_selectedCategory'}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    'No products found',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
             );
           }
 
-          return ListView.builder(
-            itemCount: filteredProducts.length,
-            itemBuilder: (context, index) {
-              final product = filteredProducts[index];
-              return Dismissible(
-                key: Key(product.id),
-                background: Container(
-                  color: Colors.red,
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  child: const Icon(Icons.delete, color: Colors.white),
+          return _isGridView
+              ? _buildProductGrid(products)
+              : _buildProductList(products);
+        },
+      ),
+    );
+  }
+
+  Widget _buildProductList(List<Product> products) {
+    return ListView.builder(
+      itemCount: products.length,
+      padding: const EdgeInsets.all(8),
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.network(
+                product.imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 50,
+                    height: 50,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.error_outline),
+                  );
+                },
+              ),
+            ),
+            title: Text(product.name),
+            subtitle: Text(
+              '${product.category} • ${product.formattedPrice}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => _showAddEditProductDialog(product),
                 ),
-                confirmDismiss: (direction) async {
-                  return await showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Delete Product'),
-                      content: Text(
-                          'Are you sure you want to delete ${product.name}?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteProduct(product),
+                  color: Colors.red,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProductGrid(List<Product> products) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error_outline, size: 50),
+                        );
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: PopupMenuButton(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          child: const Text('Edit'),
+                          onTap: () => _showAddEditProductDialog(product),
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Delete'),
+                        PopupMenuItem(
+                          child: const Text('Delete',
+                              style: TextStyle(color: Colors.red)),
+                          onTap: () => _deleteProduct(product),
                         ),
                       ],
                     ),
-                  );
-                },
-                onDismissed: (direction) async {
-                  try {
-                    await _adminService.deleteProduct(product.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${product.name} deleted successfully'),
-                      ),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
-                },
-                child: Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        product.imageUrl,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 50,
-                            height: 50,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image_not_supported),
-                          );
-                        },
-                      ),
-                    ),
-                    title: Text(
-                      product.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${product.category}\n${product.formattedPrice}',
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _showAddEditProductDialog(product),
-                    ),
-                    isThreeLine: true,
                   ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      product.category,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      product.formattedPrice,
+                      style: TextStyle(
+                          color: Colors.blue[800], fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-              );
-            },
-          );
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Search delegate for products
+class ProductSearchDelegate extends SearchDelegate<String> {
+  final AdminService _adminService;
+
+  ProductSearchDelegate(this._adminService);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
         },
       ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults();
+  }
+
+  Widget _buildSearchResults() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _adminService.getProducts(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final products = snapshot.data!.docs
+            .map((doc) => Product.fromFirestore(doc))
+            .where((product) =>
+                product.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+
+        return ListView.builder(
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return ListTile(
+              leading: Image.network(
+                product.imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 50,
+                    height: 50,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.error_outline),
+                  );
+                },
+              ),
+              title: Text(product.name),
+              subtitle: Text(product.category),
+              trailing: Text(product.formattedPrice),
+              onTap: () {
+                close(context, product.id);
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
