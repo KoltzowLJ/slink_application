@@ -37,54 +37,23 @@ class Product {
 
   factory Product.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    try {
-      return Product(
-        id: data['id']?.toString() ?? doc.id,
-        name: data['name']?.toString() ?? '',
-        description: data['description']?.toString() ?? '',
-        price: (data['price'] is num ? (data['price'] as num).toDouble() : 0.0),
-        imageUrl: data['imageUrl']?.toString() ?? '',
-        category: data['category']?.toString() ?? '',
-        stockQuantity: (data['stockQuantity'] as num?)?.toInt() ?? 0,
-        specifications: (data['specifications'] as Map<String, dynamic>?) ?? {},
-        features: List<String>.from(data['features'] ?? []),
-        isWishlisted: data['isWishlisted'] as bool? ?? false,
-        reviews: ((data['reviews'] ?? []) as List)
-            .map((review) => review is Map<String, dynamic>
-                ? Review.fromMap(review)
-                : Review(
-                    user: '',
-                    comment: '',
-                    rating: 0,
-                  ))
-            .toList(),
-        createdAt:
-            (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-        lastUpdated:
-            (data['lastUpdated'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      );
-    } catch (e, stackTrace) {
-      print('Error parsing product data: $e');
-      print('Stack trace: $stackTrace');
-      print('Product data: $data');
-
-      // Return a default product instead of throwing
-      return Product(
-        id: doc.id,
-        name: data['name']?.toString() ?? '',
-        description: data['description']?.toString() ?? '',
-        price: 0.0,
-        imageUrl: '',
-        category: '',
-        stockQuantity: 0,
-        specifications: {},
-        features: [],
-        isWishlisted: false,
-        reviews: [],
-        createdAt: DateTime.now(),
-        lastUpdated: DateTime.now(),
-      );
-    }
+    return Product(
+      id: doc.id, // Use the document ID instead of data['id']
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      price: (data['price'] ?? 0.0).toDouble(),
+      imageUrl: data['imageUrl'] ?? '',
+      category: data['category'] ?? '',
+      stockQuantity: (data['stockQuantity'] ?? 0).toInt(),
+      specifications: (data['specifications'] as Map<String, dynamic>?) ?? {},
+      features: List<String>.from(data['features'] ?? []),
+      isWishlisted: data['isWishlisted'] ?? false,
+      reviews: ((data['reviews'] ?? []) as List)
+          .map((review) => Review.fromMap(review))
+          .toList(),
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      lastUpdated: (data['lastUpdated'] as Timestamp).toDate(),
+    );
   }
 
   factory Product.fromMap(Map<String, dynamic> map) {

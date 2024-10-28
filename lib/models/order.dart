@@ -144,13 +144,20 @@ class OrderModel {
 
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    // Handle the items field properly
+    List<OrderItem> orderItems = [];
+    if (data['items'] != null) {
+      orderItems = (data['items'] as List).map((item) {
+        return OrderItem.fromMap(item as Map<String, dynamic>);
+      }).toList();
+    }
+
     return OrderModel(
       id: doc.id,
       userId: data['userId'] ?? '',
       userName: data['userName'] ?? '',
-      items: (data['items'] as List)
-          .map((item) => OrderItem.fromMap(item))
-          .toList(),
+      items: orderItems,
       subtotal: (data['subtotal'] ?? 0.0).toDouble(),
       tax: (data['tax'] ?? 0.0).toDouble(),
       total: (data['total'] ?? 0.0).toDouble(),
