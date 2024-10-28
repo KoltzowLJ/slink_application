@@ -1,6 +1,7 @@
 // lib/service/admin_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AdminService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -13,7 +14,7 @@ class AdminService {
       final bookings = await _firestore.collection('bookings').count().get();
 
       return {
-        'products': products.count ?? 0, // Add null check with default value
+        'products': products.count ?? 0,
         'orders': orders.count ?? 0,
         'users': users.count ?? 0,
         'bookings': bookings.count ?? 0,
@@ -70,6 +71,47 @@ class AdminService {
     }
   }
 
+  // Booking methods
+  Stream<QuerySnapshot> getBookings() {
+    return _firestore.collection('bookings').snapshots();
+  }
+
+  Future<void> addBooking(Map<String, dynamic> bookingData) async {
+    await _firestore.collection('bookings').add(bookingData);
+  }
+
+  Future<void> updateBookingStatus(String bookingId, String status) async {
+    await _firestore
+        .collection('bookings')
+        .doc(bookingId)
+        .update({'status': status});
+  }
+
+  Future<void> updateBookingNotes(String bookingId, String notes) async {
+    await _firestore
+        .collection('bookings')
+        .doc(bookingId)
+        .update({'notes': notes});
+  }
+
+  Future<void> deleteBooking(String bookingId) async {
+    await _firestore.collection('bookings').doc(bookingId).delete();
+  }
+
+  Future<void> updateOrderStatus(String orderId, String status) async {
+    await _firestore
+        .collection('orders')
+        .doc(orderId)
+        .update({'status': status});
+  }
+
+  Future<void> updateUserAdminStatus(String userId, bool isAdmin) async {
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .update({'isAdmin': isAdmin});
+  }
+
   Stream<QuerySnapshot> getProducts() {
     return _firestore.collection('products').snapshots();
   }
@@ -82,7 +124,21 @@ class AdminService {
     return _firestore.collection('orders').snapshots();
   }
 
-  Stream<QuerySnapshot> getBookings() {
-    return _firestore.collection('bookings').snapshots();
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(uid).update(data);
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
+  Future<void> disableUser(String uid) async {
+    // You might want to implement this based on your needs
+    await _firestore.collection('users').doc(uid).update({'isActive': false});
+  }
+
+  Future<void> deleteUser(String uid) async {
+    // Be careful with this one - you might want to implement additional safety checks
+    await _firestore.collection('users').doc(uid).delete();
   }
 }
