@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
               _buildSectionTitle('Featured Products'),
               _buildFeaturedProducts(),
               const SizedBox(height: 20),
-              _buildSectionTitle('Upcoming Sessions'),
+              _buildSectionTitle('Upcoming Bookings'),
               _buildUpcomingSessions(),
             ],
           ),
@@ -269,7 +269,7 @@ class _HomePageState extends State<HomePage> {
             'Sessions',
             Icons.calendar_today,
             Colors.green[700]!,
-            () => Navigator.pushNamed(context, '/sessions'),
+            () => Navigator.pushNamed(context, '/bookings'),
           ),
           _buildFeatureCard(
             'Orders',
@@ -356,7 +356,7 @@ class _HomePageState extends State<HomePage> {
             'Book Session',
             Icons.calendar_today_outlined,
             Colors.green[700]!,
-            () => Navigator.pushNamed(context, '/sessions'),
+            () => Navigator.pushNamed(context, '/bookings'),
           ),
           _buildQuickActionCard(
             'My Orders',
@@ -469,7 +469,7 @@ class _HomePageState extends State<HomePage> {
                   const Text('Upcoming Date'),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushNamed(context, '/bookings'),
                     child: const Text('Book Now'),
                   ),
                 ],
