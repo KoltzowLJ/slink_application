@@ -1,6 +1,10 @@
-// lib/models/order_model.dart
+// lib/models/order.dart
+
+// Used for managing orders and syncing with Firestore database.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Represents a single product item in an order
 class OrderItem {
   final String productId;
   final String productName;
@@ -18,6 +22,7 @@ class OrderItem {
     required this.category,
   });
 
+  // Convert to map for storage
   Map<String, dynamic> toMap() {
     return {
       'productId': productId,
@@ -29,6 +34,7 @@ class OrderItem {
     };
   }
 
+  // Create from stored map
   factory OrderItem.fromMap(Map<String, dynamic> map) {
     return OrderItem(
       productId: map['productId'] ?? '',
@@ -41,6 +47,7 @@ class OrderItem {
   }
 }
 
+// Handles delivery address information
 class ShippingAddress {
   final String streetAddress;
   final String city;
@@ -58,6 +65,7 @@ class ShippingAddress {
     required this.contactNumber,
   });
 
+  // Convert to map for storage
   Map<String, dynamic> toMap() {
     return {
       'streetAddress': streetAddress,
@@ -69,6 +77,7 @@ class ShippingAddress {
     };
   }
 
+  // Create from stored map
   factory ShippingAddress.fromMap(Map<String, dynamic> map) {
     return ShippingAddress(
       streetAddress: map['streetAddress'] ?? '',
@@ -81,23 +90,33 @@ class ShippingAddress {
   }
 }
 
+// Main order class containing all order information
 class OrderModel {
+  // Order identification
   final String id;
   final String userId;
   final String userName;
+
+  // Order contents and costs
   final List<OrderItem> items;
   final double subtotal;
   final double tax;
   final double total;
+
+  // Order status
   final String status;
   final String paymentStatus;
   final String paymentMethod;
+
+  // Shipping details
   final String shippingAddress;
   final String orderNotes;
+  final String trackingNumber;
+  final DateTime? estimatedDeliveryDate;
+
+  // Metadata
   final DateTime createdAt;
   final DateTime lastUpdated;
-  final DateTime? estimatedDeliveryDate;
-  final String trackingNumber;
   final String cancelReason;
 
   OrderModel({
@@ -120,6 +139,7 @@ class OrderModel {
     this.cancelReason = '',
   });
 
+  // Convert to Firestore format
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
@@ -142,15 +162,15 @@ class OrderModel {
     };
   }
 
+  // Create from Firestore document
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    // Handle the items field properly
     List<OrderItem> orderItems = [];
     if (data['items'] != null) {
-      orderItems = (data['items'] as List).map((item) {
-        return OrderItem.fromMap(item as Map<String, dynamic>);
-      }).toList();
+      orderItems = (data['items'] as List)
+          .map((item) => OrderItem.fromMap(item as Map<String, dynamic>))
+          .toList();
     }
 
     return OrderModel(
@@ -176,6 +196,7 @@ class OrderModel {
     );
   }
 
+  // Create a copy with updated fields
   OrderModel copyWith({
     String? id,
     String? userId,

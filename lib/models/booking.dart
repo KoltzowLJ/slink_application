@@ -1,7 +1,11 @@
-// lib/models/booking_model.dart
+// lib/models/booking.dart
+
+// Used for communication between the app and Firestore database.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Booking {
+  // Basic booking information
   final String id;
   final String userId;
   final String userName;
@@ -9,12 +13,17 @@ class Booking {
   final DateTime dateTime;
   final double duration;
   final double price;
+
+  // Booking status and details
   final String status;
   final String trainerName;
   final String notes;
+
+  // Timestamps
   final DateTime createdAt;
   final DateTime lastUpdated;
 
+  // Constructor
   Booking({
     required this.id,
     required this.userId,
@@ -31,15 +40,9 @@ class Booking {
   })  : createdAt = createdAt ?? DateTime.now(),
         lastUpdated = lastUpdated ?? DateTime.now();
 
+  // Create Booking from Firestore document
   factory Booking.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    double convertToDouble(dynamic value) {
-      if (value is int) return value.toDouble();
-      if (value is double) return value;
-      if (value is String) return double.tryParse(value) ?? 0.0;
-      return 0.0;
-    }
 
     return Booking(
       id: doc.id,
@@ -47,8 +50,8 @@ class Booking {
       userName: data['userName'] ?? '',
       serviceType: data['serviceType'] ?? '',
       dateTime: (data['dateTime'] as Timestamp).toDate(),
-      duration: convertToDouble(data['duration']),
-      price: convertToDouble(data['price']),
+      duration: (data['duration'] as num).toDouble(),
+      price: (data['price'] as num).toDouble(),
       status: data['status'] ?? 'pending',
       trainerName: data['trainerName'] ?? '',
       notes: data['notes'] ?? '',
@@ -57,6 +60,7 @@ class Booking {
     );
   }
 
+  // Convert Booking to Firestore format
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
@@ -73,6 +77,7 @@ class Booking {
     };
   }
 
+  // Create a copy with optional updated fields
   Booking copyWith({
     String? id,
     String? userId,

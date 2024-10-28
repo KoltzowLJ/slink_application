@@ -1,12 +1,23 @@
 // lib/models/user_model.dart
 
+// A model class representing a user in the application.
+
 class UserModel {
+  // User identification
   final String uid;
   final String email;
   final String name;
+
+  // User privileges and rewards
   final bool isAdmin;
   final int loyaltyPoints;
 
+  /// Creates a new UserModel instance
+  ///
+  /// [uid] and [email] are required for authentication
+  /// [name] is required for display purposes
+  /// [isAdmin] defaults to false for regular users
+  /// [loyaltyPoints] starts at 0 for new users
   UserModel({
     required this.uid,
     required this.email,
@@ -15,6 +26,10 @@ class UserModel {
     this.loyaltyPoints = 0,
   });
 
+  /// Creates a UserModel from a data map
+  ///
+  /// Used when retrieving user data from storage
+  /// Provides default values if fields are missing
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
@@ -25,6 +40,9 @@ class UserModel {
     );
   }
 
+  /// Converts UserModel to a data map
+  ///
+  /// Used when storing user data
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -35,6 +53,9 @@ class UserModel {
     };
   }
 
+  /// Creates a copy of UserModel with optional field updates
+  ///
+  /// Useful for updating specific fields while maintaining immutability
   UserModel copyWith({
     String? uid,
     String? email,
@@ -49,5 +70,10 @@ class UserModel {
       isAdmin: isAdmin ?? this.isAdmin,
       loyaltyPoints: loyaltyPoints ?? this.loyaltyPoints,
     );
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(uid: $uid, email: $email, name: $name, isAdmin: $isAdmin, loyaltyPoints: $loyaltyPoints)';
   }
 }

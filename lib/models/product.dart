@@ -1,19 +1,28 @@
 // lib/models/product.dart
 
+// A comprehensive model for managing product data in the e-commerce application.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Product {
+  // Basic product information
   final String id;
   final String name;
   final String description;
   final double price;
   final String imageUrl;
   final String category;
+
+  // Inventory and specifications
   final int stockQuantity;
   final Map<String, dynamic> specifications;
   final List<String> features;
+
+  // User interaction data
   bool isWishlisted;
   List<Review> reviews;
+
+  // Timestamps
   final DateTime createdAt;
   final DateTime lastUpdated;
 
@@ -33,12 +42,11 @@ class Product {
     required this.lastUpdated,
   });
 
-// lib/models/product.dart
-
+  // Create from Firestore document
   factory Product.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Product(
-      id: doc.id, // Use the document ID instead of data['id']
+      id: doc.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       price: (data['price'] ?? 0.0).toDouble(),
@@ -56,6 +64,7 @@ class Product {
     );
   }
 
+  // Create from Map with error handling
   factory Product.fromMap(Map<String, dynamic> map) {
     try {
       return Product(
@@ -82,13 +91,13 @@ class Product {
             (map['lastUpdated'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
     } catch (e, stackTrace) {
-      print('Error parsing product map: $e');
-      print('Stack trace: $stackTrace');
-      print('Product map: $map');
+      print(
+          'Error parsing product map: $e\nStack trace: $stackTrace\nProduct map: $map');
       rethrow;
     }
   }
 
+  // Convert to Firestore format
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -106,10 +115,12 @@ class Product {
     };
   }
 
-  // Helper getters
+  // Getters for computed properties
   String get formattedPrice => 'R${price.toStringAsFixed(2)}';
   bool get isInStock => stockQuantity > 0;
   String get stockStatus => isInStock ? 'In Stock' : 'Out of Stock';
+
+  // Specification getters
   List<String> get colors =>
       (specifications['colors'] as List<dynamic>?)?.cast<String>() ?? [];
   String get material => specifications['material']?.toString() ?? '';
@@ -117,7 +128,7 @@ class Product {
   String get thickness => specifications['thickness']?.toString() ?? '';
   String get weight => specifications['weight']?.toString() ?? '';
 
-  // Copy with method for updating product
+  // Create copy with optional updates
   Product copyWith({
     String? id,
     String? name,
@@ -164,6 +175,7 @@ class Review {
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
+  // Create from Map with error handling
   factory Review.fromMap(Map<String, dynamic> map) {
     try {
       return Review(
@@ -176,14 +188,11 @@ class Review {
     } catch (e) {
       print('Error parsing review: $e');
       return Review(
-        user: '',
-        comment: '',
-        rating: 0,
-        timestamp: DateTime.now(),
-      );
+          user: '', comment: '', rating: 0, timestamp: DateTime.now());
     }
   }
 
+  // Convert to Map for storage
   Map<String, dynamic> toMap() {
     return {
       'user': user,
