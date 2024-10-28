@@ -1,7 +1,6 @@
+// lib/pages/home_page.dart
+
 import 'package:flutter/material.dart';
-// import 'product_list_page.dart';
-// import 'session_list_page.dart';
-// import 'order_history_page.dart';
 import 'user_profile_page.dart';
 import 'wishlist_page.dart';
 import 'cart_page.dart';
@@ -18,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // State variables
   List<Product> cart = [];
   bool isLoading = true;
 
@@ -27,26 +27,19 @@ class _HomePageState extends State<HomePage> {
     _loadInitialData();
   }
 
+  // Initial data loading
   Future<void> _loadInitialData() async {
-    // Placeholder for future database calls
-    setState(() {
-      isLoading = true;
-    });
-
+    setState(() => isLoading = true);
     try {
-      // Simulate loading time
       await Future.delayed(const Duration(seconds: 1));
-      // Here you'll fetch data from your database
-      // products = await productService.getFeaturedProducts();
     } catch (e) {
       print('Error loading data: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
+  // Wishlist management
   void toggleWishlist(Product product) {
     setState(() {
       product.isWishlisted = !product.isWishlisted;
@@ -58,10 +51,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // Cart management
   void removeFromCart(Product product) {
-    setState(() {
-      cart.remove(product);
-    });
+    setState(() => cart.remove(product));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${product.name} removed from cart')),
     );
@@ -71,79 +63,108 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: RefreshIndicator(
-        onRefresh: _loadInitialData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBanner(),
-              const SizedBox(height: 20),
-              _buildFeatureCards(),
-              const SizedBox(height: 20),
-              _buildSectionTitle('Quick Actions'),
-              _buildQuickActions(),
-              const SizedBox(height: 20),
-              _buildSectionTitle('Featured Products'),
-              _buildFeaturedProducts(),
-              const SizedBox(height: 20),
-              _buildSectionTitle('Upcoming Bookings'),
-              _buildUpcomingSessions(),
-            ],
-          ),
-        ),
-      ),
+      body: _buildBody(),
     );
   }
 
+  // App Bar with actions
   AppBar _buildAppBar() {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.blue[800],
       title: const Text(
-        '', //'SLINK'
+        '',
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 24,
           letterSpacing: 1.5,
         ),
       ),
-      actions: [
-        _buildAppBarAction(Icons.favorite, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WishlistPage(
-                wishlist: widget.wishlist,
-                onAddToCart: widget.addToCart,
-                onWishlistToggle: toggleWishlist,
-              ),
-            ),
-          );
-        }, widget.wishlist.length),
-        _buildAppBarAction(Icons.shopping_cart, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CartPage(
-                cartItems: cart,
-                onRemoveFromCart: removeFromCart,
-              ),
-            ),
-          );
-        }, cart.length),
-        IconButton(
-          icon: const Icon(Icons.person, color: Colors.white),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserProfilePage()),
-          ),
-        ),
-      ],
+      actions: _buildAppBarActions(),
     );
   }
 
+  // App Bar actions
+  List<Widget> _buildAppBarActions() {
+    return [
+      _buildAppBarAction(
+        Icons.favorite,
+        () => _navigateToWishlist(),
+        widget.wishlist.length,
+      ),
+      _buildAppBarAction(
+        Icons.shopping_cart,
+        () => _navigateToCart(),
+        cart.length,
+      ),
+      IconButton(
+        icon: const Icon(Icons.person, color: Colors.white),
+        onPressed: () => _navigateToProfile(),
+      ),
+    ];
+  }
+
+  // Main body content
+  Widget _buildBody() {
+    return RefreshIndicator(
+      onRefresh: _loadInitialData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBanner(),
+            const SizedBox(height: 20),
+            _buildFeatureCards(),
+            const SizedBox(height: 20),
+            _buildSectionTitle('Quick Actions'),
+            _buildQuickActions(),
+            const SizedBox(height: 20),
+            _buildSectionTitle('Featured Products'),
+            _buildFeaturedProducts(),
+            const SizedBox(height: 20),
+            _buildSectionTitle('Upcoming Bookings'),
+            _buildUpcomingSessions(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Navigation methods
+  void _navigateToWishlist() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WishlistPage(
+          wishlist: widget.wishlist,
+          onAddToCart: widget.addToCart,
+          onWishlistToggle: toggleWishlist,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToCart() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartPage(
+          cartItems: cart,
+          onRemoveFromCart: removeFromCart,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UserProfilePage()),
+    );
+  }
+
+  // UI Component Widgets
   Widget _buildAppBarAction(IconData icon, VoidCallback onPressed, int count) {
     return Stack(
       children: [
@@ -151,41 +172,41 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(icon, color: Colors.white),
           onPressed: onPressed,
         ),
-        if (count > 0)
-          Positioned(
-            right: 8,
-            top: 8,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
-              child: Text(
-                count.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
+        if (count > 0) _buildCountBadge(count),
       ],
     );
   }
 
+  Widget _buildCountBadge(int count) {
+    return Positioned(
+      right: 8,
+      top: 8,
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        constraints: const BoxConstraints(
+          minWidth: 16,
+          minHeight: 16,
+        ),
+        child: Text(
+          count.toString(),
+          style: const TextStyle(color: Colors.white, fontSize: 10),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
   Widget _buildBanner() {
-    return Container(
+    return SizedBox(
       height: 200,
       width: double.infinity,
       child: Stack(
         children: [
-          // Replace with Image.asset
+          // Replace with Image
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -253,7 +274,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFeatureCards() {
-    return Container(
+    return SizedBox(
       height: 120,
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -320,8 +341,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Add the remaining widgets...
-  // _buildSectionTitle
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -335,7 +354,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // _buildQuickActions
   Widget _buildQuickActions() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -404,13 +422,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFeaturedProducts() {
-    // Placeholder for featured products
     return Container(
       height: 200,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 5, // Replace with actual product count
+        itemCount: 5,
         itemBuilder: (context, index) {
           return Card(
             margin: const EdgeInsets.only(right: 16),
@@ -431,7 +448,7 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '\R999.99',
+                    'R999.99',
                     style: TextStyle(color: Colors.blue[800]),
                   ),
                 ],
@@ -443,16 +460,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-// _buildUpcomingSessions
-
   Widget _buildUpcomingSessions() {
-    // Placeholder for upcoming sessions
     return Container(
       height: 150,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 3, // Replace with actual session count
+        itemCount: 3,
         itemBuilder: (context, index) {
           return Card(
             margin: const EdgeInsets.only(right: 16),

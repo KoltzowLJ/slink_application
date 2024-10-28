@@ -1,4 +1,5 @@
 // lib/pages/booking_details_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,8 +20,11 @@ class BookingDetailsPage extends StatefulWidget {
 }
 
 class _BookingDetailPageState extends State<BookingDetailsPage> {
+  // State variables
   DateTime? _selectedDate;
   String? _selectedTime;
+
+  // Available time slots
   final List<String> _availableTimes = [
     '09:00',
     '10:00',
@@ -30,6 +34,7 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
     '16:00'
   ];
 
+  // Date picker function
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -37,14 +42,15 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 90)),
     );
+
     if (picked != null && mounted) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(() => _selectedDate = picked);
     }
   }
 
+  // Create booking function
   Future<void> _createBooking() async {
+    // Validate date and time selection
     if (_selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select both date and time')),
@@ -53,6 +59,7 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
     }
 
     try {
+      // Check if user is authenticated
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +75,7 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
           .get();
       final userData = userDoc.data() as Map<String, dynamic>;
 
-      // Convert duration and price to double
+      // Parse duration and price
       final duration = (widget.serviceData['duration'] is int)
           ? (widget.serviceData['duration'] as int).toDouble()
           : (widget.serviceData['duration'] as num?)?.toDouble() ?? 1.0;
@@ -77,9 +84,9 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
           ? (widget.serviceData['price'] as int).toDouble()
           : (widget.serviceData['price'] as num?)?.toDouble() ?? 0.0;
 
-      // Create booking
+      // Create booking object
       final booking = Booking(
-        id: '', // Will be set by Firestore
+        id: '',
         userId: user.uid,
         userName: userData['name'] ?? '',
         serviceType: widget.serviceData['title'] ?? '',
@@ -94,6 +101,7 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
         price: price,
       );
 
+      // Save booking to Firestore
       await FirebaseFirestore.instance
           .collection('bookings')
           .add(booking.toFirestore());
@@ -105,7 +113,6 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
         Navigator.pop(context);
       }
     } catch (e) {
-      print('Booking error details: $e'); // Add this for debugging
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating booking: $e')),
       );
@@ -124,6 +131,7 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Service title
             Text(
               widget.serviceData['title'] ?? '',
               style: const TextStyle(
@@ -133,6 +141,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ),
             ),
             const SizedBox(height: 8.0),
+
+            // Location
             Row(
               children: [
                 Icon(Icons.location_on, color: Colors.blue[800]),
@@ -144,6 +154,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ],
             ),
             const SizedBox(height: 16.0),
+
+            // Price
             Text(
               'R${(widget.serviceData['price'] ?? 0.0).toStringAsFixed(2)}',
               style: TextStyle(
@@ -153,6 +165,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            // Description section
             const Text(
               'Description',
               style: TextStyle(
@@ -166,6 +180,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               style: TextStyle(fontSize: 16.0, color: Colors.grey[700]),
             ),
             const SizedBox(height: 24.0),
+
+            // Date and time selection
             const Text(
               'Select Date and Time',
               style: TextStyle(
@@ -174,6 +190,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            // Date picker button
             OutlinedButton.icon(
               onPressed: () => _selectDate(context),
               icon: const Icon(Icons.calendar_today),
@@ -184,6 +202,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            // Time selection chips
             if (_selectedDate != null) ...[
               const Text(
                 'Available Times',
@@ -209,6 +229,8 @@ class _BookingDetailPageState extends State<BookingDetailsPage> {
               ),
             ],
             const SizedBox(height: 24.0),
+
+            // Book now button
             ElevatedButton(
               onPressed: _createBooking,
               style: ElevatedButton.styleFrom(
