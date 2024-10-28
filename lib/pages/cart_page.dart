@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product.dart';
-import '../service/checkout_service.dart';
+import '../pages/checkout_form_page.dart';
 
 class CartPage extends StatefulWidget {
   final List<Product> cartItems;
@@ -137,33 +136,16 @@ class _CartPageState extends State<CartPage> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () async {
-              try {
-                final checkoutService = CheckoutService();
-                final userId = FirebaseAuth.instance.currentUser?.uid;
-
-                if (userId != null) {
-                  await checkoutService.createOrder(
-                    userId,
-                    widget.cartItems,
-                    totalPrice,
-                  );
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Order placed successfully!')),
-                  );
-
-                  Navigator.pop(context); // Return to previous screen
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please sign in to checkout')),
-                  );
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CheckoutFormPage(
+                    cartItems: widget.cartItems,
+                    total: totalPrice,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
