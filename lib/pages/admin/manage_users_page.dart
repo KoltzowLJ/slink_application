@@ -1,4 +1,7 @@
 // lib/pages/admin/manage_users_page.dart
+
+// An admin interface for managing users with features
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user.dart';
@@ -14,7 +17,7 @@ class ManageUsersPage extends StatefulWidget {
 class _ManageUsersPageState extends State<ManageUsersPage> {
   final AdminService _adminService = AdminService();
   String _searchQuery = '';
-  String _filterType = 'all'; // all, admin, user
+  String _filterType = 'all';
   bool _showInactiveUsers = false;
 
   Future<void> _showUserDetailsDialog(UserModel user) async {
@@ -203,7 +206,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
   }
 
   Future<void> _disableUserAccount(UserModel user) async {
-    // Show confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -235,7 +237,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
   }
 
   Future<void> _deleteUser(UserModel user) async {
-    // Show confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -282,7 +283,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
       appBar: AppBar(
         title: const Text('Manage Users'),
         actions: [
-          // Search
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -320,7 +320,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               );
             },
           ),
-          // Filter
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
             onSelected: (value) {
@@ -334,7 +333,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               const PopupMenuItem(value: 'user', child: Text('Regular Users')),
             ],
           ),
-          // Show/Hide inactive users
           IconButton(
             icon: Icon(
                 _showInactiveUsers ? Icons.visibility_off : Icons.visibility),
@@ -364,7 +362,6 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
             return UserModel.fromMap(doc.data() as Map<String, dynamic>);
           }).toList();
 
-          // Apply filters
           if (_filterType == 'admin') {
             users = users.where((user) => user.isAdmin).toList();
           } else if (_filterType == 'user') {

@@ -1,5 +1,7 @@
 // lib/pages/admin/manage_products_page.dart
 
+// An admin interface for managing products with features
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/product.dart';
@@ -15,7 +17,7 @@ class ManageProductsPage extends StatefulWidget {
 
 class _ManageProductsPageState extends State<ManageProductsPage> {
   final AdminService _adminService = AdminService();
-  String _searchQuery = '';
+  final String _searchQuery = '';
   String _selectedCategory = 'All';
   bool _isGridView = false;
 
@@ -28,11 +30,9 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     if (result != null && mounted) {
       try {
         if (product == null) {
-          // Adding new product
           await _adminService.addProduct(result);
           _showSnackBar('Product added successfully');
         } else {
-          // Updating existing product
           await _adminService.updateProduct(product.id, result);
           _showSnackBar('Product updated successfully');
         }
@@ -88,7 +88,6 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
       appBar: AppBar(
         title: const Text('Manage Products'),
         actions: [
-          // Search icon
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
@@ -98,7 +97,6 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
               );
             },
           ),
-          // View toggle
           IconButton(
             icon: Icon(_isGridView ? Icons.list : Icons.grid_view),
             onPressed: () {
@@ -107,7 +105,6 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
               });
             },
           ),
-          // Category filter
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
             onSelected: (category) {
@@ -320,7 +317,6 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
   }
 }
 
-// Search delegate for products
 class ProductSearchDelegate extends SearchDelegate<String> {
   final AdminService _adminService;
 
