@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/user_model.dart';
+import '../models/user.dart';
 import '../service/auth_service.dart';
 import '../service/admin_service.dart';
 import 'admin/admin_home_page.dart';

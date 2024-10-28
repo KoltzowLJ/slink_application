@@ -2,12 +2,39 @@
 
 import 'package:flutter/material.dart';
 import 'manage_products_page.dart';
-import 'manage_bookings_page.dart';
-import 'manage_users_page.dart';
 import 'manage_orders_page.dart';
+import 'manage_users_page.dart';
+import 'manage_bookings_page.dart';
+import '../../service/admin_service.dart';
 
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
+
+  @override
+  State<AdminHomePage> createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
+  final AdminService _adminService = AdminService();
+  Map<String, int> _stats = {
+    'products': 0,
+    'orders': 0,
+    'users': 0,
+    'bookings': 0,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final stats = await _adminService.getDashboardStats();
+    setState(() {
+      _stats = stats;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,172 +43,198 @@ class AdminHomePage extends StatelessWidget {
         title: const Text('Admin Dashboard'),
         backgroundColor: Colors.blue[800],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Admin Dashboard',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: RefreshIndicator(
+        onRefresh: _loadStats,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Dashboard Overview',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildStatsCards(),
-            const SizedBox(height: 30),
-            const Text(
-              'Management',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              _buildStatsGrid(),
+              const SizedBox(height: 30),
+              Text(
+                'Quick Actions',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildManagementGrid(context),
-          ],
+              const SizedBox(height: 20),
+              _buildActionGrid(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStatsCards() {
+  Widget _buildStatsGrid() {
     return GridView.count(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      crossAxisSpacing: 16,
       mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildStatCard('Total Products', '23', Icons.shopping_bag, Colors.blue),
-        _buildStatCard('Total Orders', '12', Icons.shopping_cart, Colors.green),
-        _buildStatCard('Active Users', '45', Icons.people, Colors.orange),
         _buildStatCard(
-            'Total Bookings', '8', Icons.calendar_today, Colors.purple),
+          'Products',
+          _stats['products'].toString(),
+          Icons.inventory,
+          Colors.blue[700]!,
+        ),
+        _buildStatCard(
+          'Orders',
+          _stats['orders'].toString(),
+          Icons.shopping_cart,
+          Colors.green[700]!,
+        ),
+        _buildStatCard(
+          'Users',
+          _stats['users'].toString(),
+          Icons.people,
+          Colors.orange[700]!,
+        ),
+        _buildStatCard(
+          'Bookings',
+          _stats['bookings'].toString(),
+          Icons.calendar_today,
+          Colors.purple[700]!,
+        ),
       ],
     );
   }
 
   Widget _buildStatCard(
       String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildManagementGrid(BuildContext context) {
+  Widget _buildActionGrid() {
     return GridView.count(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      crossAxisSpacing: 16,
       mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildManagementCard(
-          context,
+        _buildActionCard(
           'Manage Products',
-          Icons.inventory,
+          Icons.inventory_2,
           Colors.blue[700]!,
           () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageProductsPage()),
+            MaterialPageRoute(
+              builder: (context) => const ManageProductsPage(),
+            ),
           ),
         ),
-        _buildManagementCard(
-          context,
-          'Manage Bookings',
-          Icons.calendar_month,
+        _buildActionCard(
+          'Manage Orders',
+          Icons.shopping_cart_checkout,
           Colors.green[700]!,
           () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageBookingsPage()),
+            MaterialPageRoute(
+              builder: (context) => ManageOrdersPage(),
+            ),
           ),
         ),
-        _buildManagementCard(
-          context,
+        _buildActionCard(
           'Manage Users',
           Icons.people,
           Colors.orange[700]!,
           () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageUsersPage()),
+            MaterialPageRoute(
+              builder: (context) => ManageUsersPage(),
+            ),
           ),
         ),
-        _buildManagementCard(
-          context,
-          'Manage Orders',
-          Icons.shopping_cart,
+        _buildActionCard(
+          'Manage Bookings',
+          Icons.calendar_month,
           Colors.purple[700]!,
           () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageOrdersPage()),
+            MaterialPageRoute(
+              builder: (context) => ManageBookingsPage(),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildManagementCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+  Widget _buildActionCard(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
