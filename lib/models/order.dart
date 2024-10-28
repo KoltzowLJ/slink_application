@@ -1,5 +1,6 @@
 // lib/models/order.dart
 
+// A comprehensive model for handling e-commerce orders in the application.
 // Used for managing orders and syncing with Firestore database.
 
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,5 +1,7 @@
 // lib/models/booking.dart
 
+// A model class representing a booking in the SLINK application.
+// Handles the creation, storage, and management of booking data
 // Used for communication between the app and Firestore database.
 
 import 'package:cloud_firestore/cloud_firestore.dart';

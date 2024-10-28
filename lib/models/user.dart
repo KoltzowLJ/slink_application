@@ -13,11 +13,6 @@ class UserModel {
   final int loyaltyPoints;
 
   /// Creates a new UserModel instance
-  ///
-  /// [uid] and [email] are required for authentication
-  /// [name] is required for display purposes
-  /// [isAdmin] defaults to false for regular users
-  /// [loyaltyPoints] starts at 0 for new users
   UserModel({
     required this.uid,
     required this.email,
@@ -27,7 +22,6 @@ class UserModel {
   });
 
   /// Creates a UserModel from a data map
-  ///
   /// Used when retrieving user data from storage
   /// Provides default values if fields are missing
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -40,9 +34,8 @@ class UserModel {
     );
   }
 
-  /// Converts UserModel to a data map
-  ///
-  /// Used when storing user data
+  // Converts UserModel to a data map
+  // Used when storing user data
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -53,9 +46,7 @@ class UserModel {
     };
   }
 
-  /// Creates a copy of UserModel with optional field updates
-  ///
-  /// Useful for updating specific fields while maintaining immutability
+  // Creates a copy of UserModel with optional field updates
   UserModel copyWith({
     String? uid,
     String? email,
