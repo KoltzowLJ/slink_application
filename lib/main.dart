@@ -13,7 +13,7 @@ import 'pages/product_list_page.dart';
 import 'pages/login_page.dart';
 import 'pages/sign_in_page.dart';
 import 'pages/sign_up_page.dart';
-import 'pages/session_list_page.dart';
+import 'pages/bookings_page.dart';
 import 'pages/order_history_page.dart';
 import 'pages/admin/admin_home_page.dart';
 import 'pages/admin/manage_products_page.dart';
@@ -151,7 +151,7 @@ class _SlinkAppState extends State<SlinkApp> {
               },
               wishlist: wishlist,
             ),
-        '/sessions': (context) => const SessionListPage(),
+        '/bookings': (context) => const BookingsPage(),
         '/orders': (context) => OrderHistoryPage(),
         // Admin routes
         '/admin': (context) => const AdminHomePage(),
