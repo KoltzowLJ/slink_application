@@ -3,21 +3,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+/// Service class for handling admin-related operations
 class AdminService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Dashboard Statistics
   Future<Map<String, int>> getDashboardStats() async {
     try {
-      final products = await _firestore.collection('products').count().get();
-      final orders = await _firestore.collection('orders').count().get();
-      final users = await _firestore.collection('users').count().get();
-      final bookings = await _firestore.collection('bookings').count().get();
+      final stats = await Future.wait([
+        _firestore.collection('products').count().get(),
+        _firestore.collection('orders').count().get(),
+        _firestore.collection('users').count().get(),
+        _firestore.collection('bookings').count().get(),
+      ]);
 
       return {
-        'products': products.count ?? 0,
-        'orders': orders.count ?? 0,
-        'users': users.count ?? 0,
-        'bookings': bookings.count ?? 0,
+        'products': stats[0].count ?? 0,
+        'orders': stats[1].count ?? 0,
+        'users': stats[2].count ?? 0,
+        'bookings': stats[3].count ?? 0,
       };
     } catch (e) {
       print('Error getting dashboard stats: $e');
@@ -30,7 +34,7 @@ class AdminService {
     }
   }
 
-  // Add method to check if user is admin
+  // User Management
   Future<bool> isUserAdmin(String uid) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
@@ -41,13 +45,37 @@ class AdminService {
     }
   }
 
-  // Add other admin-related methods here
-  Future<void> deleteProduct(String productId) async {
+  Future<void> updateUserAdminStatus(String userId, bool isAdmin) async {
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .update({'isAdmin': isAdmin});
+  }
+
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(uid).update(data);
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
+  Future<void> disableUser(String uid) async {
+    await _firestore.collection('users').doc(uid).update({'isActive': false});
+  }
+
+  Future<void> deleteUser(String uid) async {
+    await _firestore.collection('users').doc(uid).delete();
+  }
+
+  // Product Management
+  Future<String> addProduct(Map<String, dynamic> data) async {
     try {
-      await _firestore.collection('products').doc(productId).delete();
+      final docRef = await _firestore.collection('products').add(data);
+      return docRef.id;
     } catch (e) {
-      print('Error deleting product: $e');
-      throw 'Failed to delete product';
+      print('Error adding product: $e');
+      throw 'Failed to add product';
     }
   }
 
@@ -61,21 +89,16 @@ class AdminService {
     }
   }
 
-  Future<String> addProduct(Map<String, dynamic> data) async {
+  Future<void> deleteProduct(String productId) async {
     try {
-      final docRef = await _firestore.collection('products').add(data);
-      return docRef.id;
+      await _firestore.collection('products').doc(productId).delete();
     } catch (e) {
-      print('Error adding product: $e');
-      throw 'Failed to add product';
+      print('Error deleting product: $e');
+      throw 'Failed to delete product';
     }
   }
 
-  // Booking methods
-  Stream<QuerySnapshot> getBookings() {
-    return _firestore.collection('bookings').snapshots();
-  }
-
+  // Booking Management
   Future<void> addBooking(Map<String, dynamic> bookingData) async {
     await _firestore.collection('bookings').add(bookingData);
   }
@@ -98,6 +121,7 @@ class AdminService {
     await _firestore.collection('bookings').doc(bookingId).delete();
   }
 
+  // Order Management
   Future<void> updateOrderStatus(String orderId, String status) async {
     await _firestore
         .collection('orders')
@@ -105,13 +129,7 @@ class AdminService {
         .update({'status': status});
   }
 
-  Future<void> updateUserAdminStatus(String userId, bool isAdmin) async {
-    await _firestore
-        .collection('users')
-        .doc(userId)
-        .update({'isAdmin': isAdmin});
-  }
-
+  // Data Streams
   Stream<QuerySnapshot> getProducts() {
     return _firestore.collection('products').snapshots();
   }
@@ -124,21 +142,7 @@ class AdminService {
     return _firestore.collection('orders').snapshots();
   }
 
-  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
-    await _firestore.collection('users').doc(uid).update(data);
-  }
-
-  Future<void> sendPasswordResetEmail(String email) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-  }
-
-  Future<void> disableUser(String uid) async {
-    // You might want to implement this based on your needs
-    await _firestore.collection('users').doc(uid).update({'isActive': false});
-  }
-
-  Future<void> deleteUser(String uid) async {
-    // Be careful with this one - you might want to implement additional safety checks
-    await _firestore.collection('users').doc(uid).delete();
+  Stream<QuerySnapshot> getBookings() {
+    return _firestore.collection('bookings').snapshots();
   }
 }

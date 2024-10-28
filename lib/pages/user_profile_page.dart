@@ -40,10 +40,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         return;
       }
 
-      // Ensure user document exists
       await _authService.ensureUserDocument(user);
 
-      // Get user data
       final userData = await _authService.getUserData(user.uid);
 
       if (!mounted) return;
@@ -289,7 +287,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // TODO: Implement rewards redemption
+                // TODO: Implement rewards stuff here
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Rewards redemption coming soon!'),
